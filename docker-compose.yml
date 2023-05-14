@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  ui:
+    entrypoint: ["npm", "run", "dev"]
+    environment:
+      NODE_ENV: development
+    image: node:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui:/opt/ui
+    working_dir: /opt/ui
+
+  server:
+    entrypoint: ["npm", "run", "start:dev"]
+    environment:
+      NODE_ENV: development
+    image: node:latest
+    links:
+      - database:database
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./server:/opt/server
+    working_dir: /opt/server
+  
+  database:
+    platform: linux/x86_64
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: leads
+      MYSQL_DATABASE: leads
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
